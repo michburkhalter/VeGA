@@ -9,6 +9,8 @@ from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
 from flask import Flask, redirect, render_template, session, url_for
 
+from vegastorage import VegaStorage
+
 ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
@@ -16,8 +18,7 @@ if ENV_FILE:
 app = Flask(__name__)
 app.secret_key = env.get("APP_SECRET_KEY")
 
-tmp_counter = 0
-
+vegastorage = VegaStorage()
 
 oauth = OAuth(app)
 
@@ -40,15 +41,14 @@ def home():
         "home.html",
         session=session.get("user"),
         pretty=json.dumps(session.get("user"), indent=4),
-        count = tmp_counter,
+        count = vegastorage.get_rides(),
     )
 
 
 @app.route("/add_bike_ride")
 def add_bike_ride():
     print("add_bike_ride")
-    global tmp_counter
-    tmp_counter=tmp_counter+1
+    vegastorage.add_one_ride()
 
     return redirect("/")
 
@@ -86,4 +86,4 @@ def logout():
 
 # asdf
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=env.get("PORT", 3000), debug=True)
+    app.run(host="0.0.0.0", port=env.get("PORT", 3000), debug=False)
