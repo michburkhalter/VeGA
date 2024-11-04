@@ -16,6 +16,8 @@ if ENV_FILE:
 app = Flask(__name__)
 app.secret_key = env.get("APP_SECRET_KEY")
 
+tmp_counter = 0
+
 
 oauth = OAuth(app)
 
@@ -33,11 +35,22 @@ oauth.register(
 # Controllers API
 @app.route("/")
 def home():
+    
     return render_template(
         "home.html",
         session=session.get("user"),
         pretty=json.dumps(session.get("user"), indent=4),
+        count = tmp_counter,
     )
+
+
+@app.route("/add_bike_ride")
+def add_bike_ride():
+    print("add_bike_ride")
+    global tmp_counter
+    tmp_counter=tmp_counter+1
+
+    return redirect("/")
 
 
 @app.route("/callback", methods=["GET", "POST"])
@@ -71,5 +84,6 @@ def logout():
     )
 
 
+# asdf
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=env.get("PORT", 3000))
+    app.run(host="0.0.0.0", port=env.get("PORT", 3000), debug=True)
